@@ -1,9 +1,16 @@
+import enum
+
 from sqlalchemy import (
-    Column, String, Integer, BigInteger, Text, Date
+    Column, String, Integer, BigInteger, Text, Date, Enum
 )
 
 from models.base import Base
 
+
+class TrailerStatus(enum.Enum):
+    AVAILABLE = "available"
+    RESERVED = "reserved"
+    UNAVAILABLE = "unavailable"
 
 class Trailer(Base):
     __tablename__ = "trailer"
@@ -22,3 +29,4 @@ class Trailer(Base):
     price_1 = Column(Integer, nullable=False, comment="Базовая цена")
     price_2 = Column(Integer, nullable=False, comment="Цена от 3 суток")
     price_3 = Column(Integer, nullable=False, comment="Цена от 7 суток")
+    status = Column(Enum(TrailerStatus), nullable=False, default=TrailerStatus.AVAILABLE)

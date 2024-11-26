@@ -17,6 +17,6 @@ SessionLocal = sessionmaker(bind=cattle_engine, class_=AsyncSession, expire_on_c
 
 
 
-async def get__db():
+async def get_db():
     async with SessionLocal() as db:
         yield db
