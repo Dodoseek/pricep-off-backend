@@ -1,12 +1,13 @@
 import asyncio
 
 from fastapi import APIRouter, WebSocket, Depends, WebSocketDisconnect
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from connection_manager import manager
 from models import Trailer
 from mysql_db import get_db
+from trailer.schema import TrailerSchema
 
 router = APIRouter()
 
@@ -30,10 +31,11 @@ async def websocket_all_trailers_status(websocket: WebSocket, session: AsyncSess
     try:
         while True:
             await asyncio.sleep(1)
-            result = await session.execute(select(Trailer))
-            trailers = result.scalars().all()
-            await manager.broadcast({"trailers": trailers})
-
+            await session.commit()
+            result = await session.execute(text("SELECT * FROM trailer"))
+            trailers = result.fetchall()
+            trailers_json = [TrailerSchema.from_orm(trailer).dict() for trailer in trailers]
+            await manager.broadcast_all({"trailers": trailers_json})
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 

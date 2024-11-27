@@ -1,8 +1,8 @@
-"""generate trailer table
+"""Add default values for prices
 
-Revision ID: 2d1c7940f8fe
+Revision ID: 558b7c2fcac3
 Revises: 
-Create Date: 2024-11-26 21:52:41.974630
+Create Date: 2024-11-27 00:31:55.467749
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '2d1c7940f8fe'
+revision: str = '558b7c2fcac3'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -32,9 +32,10 @@ def upgrade() -> None:
     sa.Column('curb_weight', sa.Integer(), nullable=False, comment='Масса в снаряженном состоянии'),
     sa.Column('deposit', sa.Integer(), nullable=False, comment='Залог'),
     sa.Column('slug', sa.String(length=200), nullable=False, comment='URL'),
-    sa.Column('price_1', sa.Integer(), nullable=False, comment='Базовая цена'),
-    sa.Column('price_2', sa.Integer(), nullable=False, comment='Цена от 3 суток'),
-    sa.Column('price_3', sa.Integer(), nullable=False, comment='Цена от 7 суток'),
+    sa.Column('price_1', sa.Integer(), nullable=False, default=800, comment='Базовая цена'),
+    sa.Column('price_2', sa.Integer(), nullable=False, default=700, comment='Цена от 3 суток'),
+    sa.Column('price_3', sa.Integer(), nullable=False, default=600, comment='Цена от 7 суток'),
+    sa.Column('status', sa.Enum('AVAILABLE', 'RESERVED', 'UNAVAILABLE', name='trailerstatus'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('slug')
     )

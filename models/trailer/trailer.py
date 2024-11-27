@@ -30,3 +30,4 @@ class Trailer(Base):
     price_2 = Column(Integer, nullable=False, default=700, comment="Цена от 3 суток")
     price_3 = Column(Integer, nullable=False, default=600, comment="Цена от 7 суток")
     status = Column(Enum(TrailerStatus), nullable=False, default=TrailerStatus.AVAILABLE)
+
