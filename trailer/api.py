@@ -1,11 +1,9 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from connection_manager import manager
-from models import Trailer
 from mysql_db import get_db
 from trailer.schema import TrailerSchema
 from trailer.services import get_trailer_by_id_from_db, delete_trailer_form_db, create_trailer_form_bd, \
@@ -16,7 +14,7 @@ router = APIRouter()
 
 @router.get('/trailers', response_model=List[TrailerSchema])
 async def get_all_trailers(session: AsyncSession = Depends(get_db)):
-    return get_all_trailers_from_db(session)
+    return await get_all_trailers_from_db(session)
 
 
 @router.get('/trailers/{trailer_id}', response_model=TrailerSchema)
