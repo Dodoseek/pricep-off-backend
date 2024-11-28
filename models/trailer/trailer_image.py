@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, BigInteger, ForeignKey
+from sqlalchemy import Column, String, BigInteger, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from models.base import Base
 
@@ -9,13 +9,6 @@ class TrailerImage(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     trailer_id = Column(BigInteger, ForeignKey("trailer.id", ondelete="CASCADE"), nullable=False)
     file_path = Column(String(300), nullable=False, comment="Путь к изображению")
-    description = Column(String(200), nullable=True, comment="Описание изображения")
+    is_main = Column(Boolean, nullable=False, default=False, comment="Является ли изображение главным")
 
-    # Связь с моделью Trailer
     trailer = relationship("Trailer", back_populates="images")
-
-    images = relationship(
-        "TrailerImage",
-        back_populates="trailer",
-        cascade="all, delete-orphan",
-    )
