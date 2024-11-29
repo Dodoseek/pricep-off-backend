@@ -33,7 +33,11 @@ async def create_trailer(trailer_data: TrailerSchema, session: AsyncSession = De
 async def update_trailer(trailer_id: int, trailer_data: TrailerSchema, session: AsyncSession = Depends(get_db)):
     existing_trailer = await get_trailer_by_id_from_db(session, trailer_id)
     new_trailer = await update_trailer_from_db(session, existing_trailer, trailer_data)
-    await manager.broadcast(new_trailer)
+
+    trailer_dict = new_trailer.__dict__
+    trailer_dict.pop("_sa_instance_state", None)
+
+    await manager.broadcast(trailer_dict)
     return new_trailer
 
 
