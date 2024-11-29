@@ -40,6 +40,6 @@ class Trailer(Base):
 
     @validates("height", "width", "max_weight", "curb_weight")
     def validate_positive_values(self, key, value):
-        if value <= 0:
-            raise ValueError(f"{key.capitalize()} должно быть положительным числом.")
+        if value < 0:
+            raise ValueError(f"{key} должно быть положительным числом.")
         return value

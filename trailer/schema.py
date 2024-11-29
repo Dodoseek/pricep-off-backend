@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 from pydantic import BaseModel, Field, ConfigDict, field_serializer
 
@@ -27,7 +28,7 @@ class TrailerSchema(BaseModel):
     max_weight: int = Field(..., ge=0, description="Максимальная масса (в кг)")
     curb_weight: int = Field(..., ge=0, description="Масса в снаряженном состоянии (в кг)")
     deposit: int = Field(..., ge=0, description="Залоговая стоимость")
-    slug: str = Field(..., description="URL адрес", max_length=200)
+    slug: Optional[str] = Field(None, description="URL адрес", max_length=200)
     price_1: int = Field(..., description='Базовая цена')
     price_2: int = Field(..., description='Цена от 3 суток')
     price_3: int = Field(..., description='Цена от 7 суток')
@@ -39,7 +40,7 @@ class TrailerSchema(BaseModel):
         return year_of_production.isoformat()
 
     @field_serializer("status")
-    def serialize_ystatus(self, status: TrailerStatus) -> str:
+    def serialize_status(self, status: TrailerStatus) -> str:
         return status.value
 
 class TrailerImageBase(BaseModel):
