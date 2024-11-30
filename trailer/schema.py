@@ -43,6 +43,9 @@ class TrailerSchema(BaseModel):
     def serialize_status(self, status: TrailerStatus) -> str:
         return status.value
 
+class TrailerCreateSchema(TrailerSchema):
+    id: Optional[int] = None
+
 class TrailerImageBase(BaseModel):
     trailer_id: int = Field(..., description="ID прицепа, к которому относится изображение")
     file_path: str = Field(..., description="Путь к файлу изображения")

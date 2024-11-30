@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from connection_manager import manager
 from mysql_db import get_db
-from trailer.schema import TrailerSchema
+from trailer.schema import TrailerSchema, TrailerCreateSchema
 from trailer.services import get_trailer_by_id_from_db, delete_trailer_form_db, create_trailer_form_bd, \
     update_trailer_from_db, get_all_trailers_from_db
 
@@ -23,9 +23,10 @@ async def get_trailer_by_id(trailer_id: int, session: AsyncSession = Depends(get
 
 
 @router.post("/trailers", response_model=TrailerSchema)
-async def create_trailer(trailer_data: TrailerSchema, session: AsyncSession = Depends(get_db)):
+async def create_trailer(trailer_data: TrailerCreateSchema, session: AsyncSession = Depends(get_db)):
     trailer = await create_trailer_form_bd(session, trailer_data)
-    await manager.broadcast(trailer)
+    trailer_json = TrailerSchema.from_orm(trailer).json()
+    await manager.broadcast(trailer_json)
     return trailer
 
 
@@ -34,10 +35,9 @@ async def update_trailer(trailer_id: int, trailer_data: TrailerSchema, session: 
     existing_trailer = await get_trailer_by_id_from_db(session, trailer_id)
     new_trailer = await update_trailer_from_db(session, existing_trailer, trailer_data)
 
-    trailer_dict = new_trailer.__dict__
-    trailer_dict.pop("_sa_instance_state", None)
+    trailer_json = TrailerSchema.from_orm(new_trailer).json()
 
-    await manager.broadcast(trailer_dict)
+    await manager.broadcast(trailer_json)
     return new_trailer
 
 
@@ -45,5 +45,7 @@ async def update_trailer(trailer_id: int, trailer_data: TrailerSchema, session: 
 async def delete_trailer(trailer_id: int, session: AsyncSession = Depends(get_db)):
     trailer = await get_trailer_by_id_from_db(session, trailer_id)
     await delete_trailer_form_db(session, trailer)
-    await manager.broadcast(trailer)
+
+    trailer_json = TrailerSchema.from_orm(trailer).json()
+    await manager.broadcast(trailer_json)
     return trailer

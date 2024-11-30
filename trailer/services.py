@@ -1,9 +1,11 @@
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import random
 
 from models.trailer.trailer import Trailer
-from trailer.schema import TrailerSchema
+from trailer.schema import TrailerSchema, TrailerCreateSchema
+from slugify import slugify
 
 
 async def get_all_trailers_from_db(session: AsyncSession):
@@ -22,13 +24,29 @@ async def get_trailer_by_id_from_db(session: AsyncSession, trailer_id: int):
     return trailer
 
 
-async def create_trailer_form_bd(session: AsyncSession, trailer_data: TrailerSchema):
+async def is_slug_unique(session: AsyncSession, slug: str) -> bool:
+    """
+    Проверяет, уникален ли slug в базе данных.
+    """
+    result = await session.execute(select(Trailer).where(Trailer.slug == slug))
+    return not result.scalars().first()
+
+async def create_trailer_form_bd(session: AsyncSession, trailer_data: TrailerCreateSchema):
     trailer_data_dict = trailer_data.dict()
+    base_slug = slugify(trailer_data_dict["name"])
+    slug = base_slug
+    while not await is_slug_unique(session, slug):
+        slug = f"{base_slug}-{random.randint(1000, 9999)}"
+
+    trailer_data_dict["slug"] = slug
+
     trailer = Trailer(**trailer_data_dict)
     session.add(trailer)
     await session.commit()
     await session.refresh(trailer)
     return trailer
+
+
 
 
 async def update_trailer_from_db(session: AsyncSession, existing_trailer: Trailer, trailer_data: TrailerSchema):
